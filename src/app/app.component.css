@@ -1,0 +1,13 @@
+.dashboard-container {
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+.campaign-section,
+.donations-section {
+  margin-bottom: 1.5rem;
+}
+
+.donations-list {
+  padding-left: 1.25rem;
+}
