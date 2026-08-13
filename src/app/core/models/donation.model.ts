@@ -1,5 +1,4 @@
 export type PaymentMethod = 'card' | 'paypal' | 'sepa';
-
 export interface Donation {
   id: string;
   donorName: string;
@@ -10,6 +9,16 @@ export interface Donation {
   createdAt: string;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface CreateDonationPayload {
   donorName: string;
   email: string;
@@ -17,14 +26,9 @@ export interface CreateDonationPayload {
   paymentMethod: PaymentMethod;
 }
 
-export interface Pagination {
+export interface DonationQueryParams {
   page: number;
   limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface DonationsApiResponse {
-  data: Donation[];
-  pagination: Pagination;
+  sort?: string;
+  order?: 'asc' | 'desc';
 }

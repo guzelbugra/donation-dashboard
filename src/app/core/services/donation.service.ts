@@ -1,35 +1,36 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   Donation,
-  DonationsApiResponse,
-  CreateDonationPayload,
+  DonationQueryParams,
+  PaginatedResponse,
 } from '../models/donation.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DonationService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/donations';
+  private readonly apiUrl = '/api/donations';
+
+  constructor(private http: HttpClient) {}
 
   getDonations(
-    page = 1,
-    limit = 10,
-    sort = 'date',
-    order = 'desc',
-  ): Observable<DonationsApiResponse> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString())
-      .set('sort', sort)
-      .set('order', order);
+    params: DonationQueryParams,
+  ): Observable<PaginatedResponse<Donation>> {
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('limit', params.limit);
 
-    return this.http.get<DonationsApiResponse>(this.apiUrl, { params });
-  }
+    if (params.sort) {
+      httpParams = httpParams.set('sort', params.sort);
+    }
+    if (params.order) {
+      httpParams = httpParams.set('order', params.order);
+    }
 
-  createDonation(payload: CreateDonationPayload): Observable<Donation> {
-    return this.http.post<Donation>(this.apiUrl, payload);
+    return this.http.get<PaginatedResponse<Donation>>(this.apiUrl, {
+      params: httpParams,
+    });
   }
 }

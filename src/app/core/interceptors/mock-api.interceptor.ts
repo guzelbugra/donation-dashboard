@@ -1,9 +1,9 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { delay, of } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
-import { DonationsApiResponse } from '../models/donation.model';
+import { Donation, PaginatedResponse } from '../models/donation.model';
 
-const MOCK_CAMPAIGN: Campaign = {
+const mockCampaign: Campaign = {
   id: 'camp_001',
   name: 'Save the Rainforest 2026',
   goal: 50000,
@@ -13,45 +13,55 @@ const MOCK_CAMPAIGN: Campaign = {
   endDate: '2026-03-31',
 };
 
-const MOCK_DONATIONS: DonationsApiResponse = {
-  data: [
-    {
-      id: 'don_001',
-      donorName: 'Maria Schmidt',
-      email: 'maria@example.com',
-      amount: 50,
-      currency: 'EUR',
-      paymentMethod: 'card',
-      createdAt: '2026-01-15T14:32:00Z',
-    },
-    {
-      id: 'don_002',
-      donorName: 'Hans Müller',
-      email: 'hans@example.com',
-      amount: 100,
-      currency: 'EUR',
-      paymentMethod: 'paypal',
-      createdAt: '2026-01-16T10:15:00Z',
-    },
-  ],
-  pagination: {
-    page: 1,
-    limit: 10,
-    total: 2,
-    totalPages: 1,
-  },
-};
+const mockDonations: Donation[] = Array.from({ length: 55 }, (_, i) => ({
+  id: `don_${String(i + 1).padStart(3, '0')}`,
+  donorName: `Donor ${i + 1}`,
+  email: `donor${i + 1}@example.com`,
+  amount: (i + 1) * 15,
+  currency: 'EUR',
+  paymentMethod: i % 2 === 0 ? 'card' : 'paypal',
+  createdAt: new Date(2026, 0, 15 - i).toISOString(),
+}));
 
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.url.endsWith('/api/campaign') && req.method === 'GET') {
-    return of(new HttpResponse({ status: 200, body: MOCK_CAMPAIGN })).pipe(
-      delay(300),
+  if (req.url === '/api/campaign' && req.method === 'GET') {
+    return of(new HttpResponse({ status: 200, body: mockCampaign })).pipe(
+      delay(500),
     );
   }
 
-  if (req.url.includes('/api/donations') && req.method === 'GET') {
-    return of(new HttpResponse({ status: 200, body: MOCK_DONATIONS })).pipe(
-      delay(300),
+  if (req.url.startsWith('/api/donations') && req.method === 'GET') {
+    const page = Number(req.params.get('page')) || 1;
+    const limit = Number(req.params.get('limit')) || 10;
+    const sort = req.params.get('sort') || 'createdAt';
+    const order = req.params.get('order') || 'desc';
+
+    let sorted = [...mockDonations];
+    sorted.sort((a, b) => {
+      let valA = a[sort as keyof Donation];
+      let valB = b[sort as keyof Donation];
+
+      if (valA < valB) return order === 'asc' ? -1 : 1;
+      if (valA > valB) return order === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    const startIndex = (page - 1) * limit;
+    const paginatedData = sorted.slice(startIndex, startIndex + limit);
+    const totalPages = Math.ceil(mockDonations.length / limit);
+
+    const response: PaginatedResponse<Donation> = {
+      data: paginatedData,
+      pagination: {
+        page,
+        limit,
+        total: mockDonations.length,
+        totalPages,
+      },
+    };
+
+    return of(new HttpResponse({ status: 200, body: response })).pipe(
+      delay(500),
     );
   }
 

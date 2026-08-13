@@ -4,22 +4,29 @@
   @if (store.campaign(); as camp) {
     <section class="campaign-section">
       <h2>Campaign: {{ camp.name }}</h2>
-      <p>Goal: {{ camp.goal }} EUR | Total Raised: {{ camp.totalRaised }} EUR</p>
+      <p>
+        Goal: {{ camp.goal }} EUR | Total Raised: {{ camp.totalRaised }} EUR
+      </p>
     </section>
   }
 
   <hr />
 
   <section class="donations-section">
-    <h3>Recent Donations</h3>
-    <ul class="donations-list">
-      @for (donation of store.donations(); track donation.id) {
-        <li>
-          <strong>{{ donation.donorName }}</strong> - {{ donation.amount }} {{ donation.currency }}
-        </li>
-      } @empty {
-        <li>No donations found.</li>
-      }
-    </ul>
+    <app-generic-table
+      title="Donations"
+      [loading]="store.loading()"
+      [data]="store.donations()"
+      [columns]="donationColumns"
+      [page]="store.page()"
+      [totalPages]="store.totalPages()"
+      [total]="store.total()"
+      [sort]="store.sort()"
+      [order]="store.order()"
+      [limit]="store.limit()"
+      (pageChange)="store.setPage($event)"
+      (sortChange)="store.setSorting($event)"
+    >
+    </app-generic-table>
   </section>
 </div>
