@@ -15,8 +15,9 @@ export interface DonationState {
   total: number;
   totalPages: number;
   sort: string;
-  loading: boolean;
   order: 'asc' | 'desc';
+  isCampaignLoading: boolean;
+  isDonationsLoading: boolean;
 }
 
 const initialState: DonationState = {
@@ -28,7 +29,8 @@ const initialState: DonationState = {
   totalPages: 1,
   sort: 'createdAt',
   order: 'desc',
-  loading: false,
+  isCampaignLoading: false,
+  isDonationsLoading: false,
 };
 
 export const DonationStore = signalStore(
@@ -40,9 +42,28 @@ export const DonationStore = signalStore(
       campaignService = inject(CampaignService),
       donationService = inject(DonationService),
     ) => {
+      const fetchCampaign = rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { isCampaignLoading: true })),
+          switchMap(() =>
+            campaignService.getCampaign().pipe(
+              tap({
+                next: (campaign) => {
+                  patchState(store, { campaign, isCampaignLoading: false });
+                },
+                error: (err) => {
+                  console.error('Campaign load error:', err);
+                  patchState(store, { isCampaignLoading: false });
+                },
+              }),
+            ),
+          ),
+        ),
+      );
+
       const fetchDonations = rxMethod<void>(
         pipe(
-          tap(() => patchState(store, { loading: true })),
+          tap(() => patchState(store, { isDonationsLoading: true })),
           switchMap(() =>
             donationService
               .getDonations({
@@ -52,15 +73,21 @@ export const DonationStore = signalStore(
                 order: store.order(),
               })
               .pipe(
-                tap((res) => {
-                  patchState(store, {
-                    donations: res.data,
-                    page: res.pagination.page,
-                    limit: res.pagination.limit,
-                    total: res.pagination.total,
-                    totalPages: res.pagination.totalPages,
-                    loading: false,
-                  });
+                tap({
+                  next: (res) => {
+                    patchState(store, {
+                      donations: res.data,
+                      page: res.pagination.page,
+                      limit: res.pagination.limit,
+                      total: res.pagination.total,
+                      totalPages: res.pagination.totalPages,
+                      isDonationsLoading: false,
+                    });
+                  },
+                  error: (err) => {
+                    console.error('Donations load error:', err);
+                    patchState(store, { isDonationsLoading: false });
+                  },
                 }),
               ),
           ),
@@ -69,20 +96,18 @@ export const DonationStore = signalStore(
 
       return {
         loadCampaign() {
-          campaignService.getCampaign().subscribe((campaign) => {
-            patchState(store, { campaign });
-          });
+          fetchCampaign();
         },
         loadDonations() {
           fetchDonations();
         },
         setPage(page: number) {
-          if (store.loading()) return;
+          if (store.isDonationsLoading()) return;
           patchState(store, { page });
           fetchDonations();
         },
         setSorting(sort: string) {
-          if (store.loading()) return;
+          if (store.isDonationsLoading()) return;
           const newOrder =
             store.sort() === sort && store.order() === 'desc' ? 'asc' : 'desc';
           patchState(store, { sort, order: newOrder, page: 1 });

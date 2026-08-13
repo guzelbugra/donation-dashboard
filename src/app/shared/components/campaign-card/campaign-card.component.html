@@ -1,0 +1,32 @@
+<div class="campaign-card">
+  @if (loading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <span>Loading data...</span>
+    </div>
+  }
+
+  @if (loading && !campaign) {
+    <p class="loading-text">Loading campaign details...</p>
+  } @else if (campaign) {
+    <h2>{{ campaign.name }}</h2>
+  }
+
+  <div class="campaign-info">
+    <span
+      >Raised:
+      <strong>{{
+        campaign?.totalRaised | currency: "EUR" : "symbol" : "1.0-0"
+      }}</strong></span
+    >
+    <span
+      >Goal: {{ campaign?.goal | currency: "EUR" : "symbol" : "1.0-0" }}</span
+    >
+    <span>({{ percentageValue | percent: "1.0-0" }})</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+  </div>
+  <p class="inspiring-message">{{ inspiringMessage }}</p>
+</div>

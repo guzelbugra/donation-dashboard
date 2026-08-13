@@ -1,13 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DonationStore } from './core/store/donation.store';
 import { GenericTableComponent } from './shared/components/generic-table/generic-table.component';
+import { CampaignCardComponent } from './shared/components/campaign-card/campaign-card.component';
 import { ColumnDef } from './shared/models/table.model';
 import { Donation } from './core/models/donation.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [GenericTableComponent],
+  imports: [GenericTableComponent, CampaignCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })

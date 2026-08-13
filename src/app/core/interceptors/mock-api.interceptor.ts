@@ -26,7 +26,7 @@ const mockDonations: Donation[] = Array.from({ length: 55 }, (_, i) => ({
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url === '/api/campaign' && req.method === 'GET') {
     return of(new HttpResponse({ status: 200, body: mockCampaign })).pipe(
-      delay(500),
+      delay(1000),
     );
   }
 
