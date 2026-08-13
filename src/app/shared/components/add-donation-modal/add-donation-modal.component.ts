@@ -1,0 +1,65 @@
+import {
+  Component,
+  ElementRef,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import {
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  CreateDonationDto,
+  PaymentMethod,
+} from '../../../core/models/donation.model';
+
+@Component({
+  selector: 'app-add-donation-modal',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  templateUrl: './add-donation-modal.component.html',
+  styleUrl: './add-donation-modal.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AddDonationModalComponent {
+  @ViewChild('dialog') dialogRef!: ElementRef<HTMLDialogElement>;
+  @Output() submitDonation = new EventEmitter<CreateDonationDto>();
+
+  private fb = inject(NonNullableFormBuilder);
+
+  form = this.fb.group({
+    donorName: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    amount: [10, [Validators.required, Validators.min(1)]],
+    paymentMethod: ['card' as PaymentMethod, [Validators.required]],
+  });
+
+  open() {
+    this.dialogRef.nativeElement.showModal();
+  }
+
+  close() {
+    this.dialogRef.nativeElement.close();
+    this.form.reset({
+      donorName: '',
+      email: '',
+      amount: 10,
+      paymentMethod: 'card' as PaymentMethod,
+    });
+  }
+
+  onSubmit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const donationData: CreateDonationDto = this.form.getRawValue();
+    this.submitDonation.emit(donationData);
+    this.close();
+  }
+}

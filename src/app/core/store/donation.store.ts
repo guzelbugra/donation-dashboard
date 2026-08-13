@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
-import { Donation } from '../models/donation.model';
+import { CreateDonationDto, Donation } from '../models/donation.model';
 import { CampaignService } from '../services/campaign.service';
 import { DonationService } from '../services/donation.service';
 
@@ -94,6 +94,31 @@ export const DonationStore = signalStore(
         ),
       );
 
+      const createDonation = rxMethod<CreateDonationDto>(
+        pipe(
+          tap(() => patchState(store, { isDonationsLoading: true })),
+          switchMap((newDonation) =>
+            donationService
+              .createDonation({
+                ...newDonation,
+                currency: newDonation.currency ?? 'EUR',
+              })
+              .pipe(
+                tap({
+                  next: () => {
+                    fetchDonations();
+                    fetchCampaign();
+                  },
+                  error: (err) => {
+                    console.error('Create donation error:', err);
+                    patchState(store, { isDonationsLoading: false });
+                  },
+                }),
+              ),
+          ),
+        ),
+      );
+
       return {
         loadCampaign() {
           fetchCampaign();
@@ -112,6 +137,9 @@ export const DonationStore = signalStore(
             store.sort() === sort && store.order() === 'desc' ? 'asc' : 'desc';
           patchState(store, { sort, order: newOrder, page: 1 });
           fetchDonations();
+        },
+        createDonation(donation: CreateDonationDto) {
+          createDonation(donation);
         },
       };
     },

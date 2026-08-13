@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  CreateDonationDto,
   Donation,
   DonationQueryParams,
   PaginatedResponse,
@@ -32,5 +33,9 @@ export class DonationService {
     return this.http.get<PaginatedResponse<Donation>>(this.apiUrl, {
       params: httpParams,
     });
+  }
+
+  createDonation(donation: CreateDonationDto): Observable<Donation> {
+    return this.http.post<Donation>(this.apiUrl, donation);
   }
 }

@@ -22,7 +22,7 @@ export class CampaignCardComponent {
 
   get percentageValue(): number {
     if (!this.campaign?.goal) return 0;
-    return this.campaign.totalRaised / this.campaign.goal;
+    return Math.min(this.campaign.totalRaised / this.campaign.goal, 1);
   }
 
   get inspiringMessage(): string {

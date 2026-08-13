@@ -1,0 +1,70 @@
+<dialog #dialog class="modal">
+  <div class="modal-header">
+    <h3>New Donation</h3>
+    <button type="button" class="close-btn" (click)="close()">✕</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field">
+      <label for="donorName">Donor Name</label>
+      <input
+        id="donorName"
+        type="text"
+        formControlName="donorName"
+        placeholder="John Doe"
+        [class.is-invalid]="
+          form.get('donorName')?.touched && form.get('donorName')?.invalid
+        "
+      />
+      @if (form.get("donorName")?.touched && form.get("donorName")?.invalid) {
+        <span class="error">Name is required (min 2 chars).</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="john@example.com"
+        [class.is-invalid]="
+          form.get('email')?.touched && form.get('email')?.invalid
+        "
+      />
+      @if (form.get("email")?.touched && form.get("email")?.invalid) {
+        <span class="error">Valid email is required.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="amount">Amount (€)</label>
+      <input
+        id="amount"
+        type="number"
+        formControlName="amount"
+        placeholder="50"
+        [class.is-invalid]="
+          form.get('amount')?.touched && form.get('amount')?.invalid
+        "
+      />
+      @if (form.get("amount")?.touched && form.get("amount")?.invalid) {
+        <span class="error">Min amount is 1€.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod" formControlName="paymentMethod">
+        <option value="card">Credit Card</option>
+        <option value="paypal">PayPal</option>
+        <option value="sepa">SEPA Direct Debit</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+      <button type="submit" class="btn-submit">Submit</button>
+    </div>
+  </form>
+</dialog>

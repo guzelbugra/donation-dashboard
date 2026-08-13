@@ -1,7 +1,11 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { delay, of } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
-import { Donation, PaginatedResponse } from '../models/donation.model';
+import {
+  CreateDonationDto,
+  Donation,
+  PaginatedResponse,
+} from '../models/donation.model';
 
 const mockCampaign: Campaign = {
   id: 'camp_001',
@@ -13,7 +17,7 @@ const mockCampaign: Campaign = {
   endDate: '2026-03-31',
 };
 
-const mockDonations: Donation[] = Array.from({ length: 55 }, (_, i) => ({
+const mockDonations: Donation[] = Array.from({ length: 10 }, (_, i) => ({
   id: `don_${String(i + 1).padStart(3, '0')}`,
   donorName: `Donor ${i + 1}`,
   email: `donor${i + 1}@example.com`,
@@ -61,6 +65,28 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
     };
 
     return of(new HttpResponse({ status: 200, body: response })).pipe(
+      delay(500),
+    );
+  }
+
+  if (req.url === '/api/donations' && req.method === 'POST') {
+    const body = req.body as CreateDonationDto;
+
+    const newDonation: Donation = {
+      id: `don_${String(mockDonations.length + 1).padStart(3, '0')}`,
+      donorName: body.donorName,
+      email: body.email,
+      amount: Number(body.amount),
+      currency: body.currency ?? 'EUR',
+      paymentMethod: body.paymentMethod,
+      createdAt: new Date().toISOString(),
+    };
+
+    mockDonations.unshift(newDonation);
+    mockCampaign.totalRaised += newDonation.amount;
+    mockCampaign.donorCount += 1;
+
+    return of(new HttpResponse({ status: 201, body: newDonation })).pipe(
       delay(500),
     );
   }

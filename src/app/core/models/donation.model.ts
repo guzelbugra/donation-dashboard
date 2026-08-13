@@ -32,3 +32,11 @@ export interface DonationQueryParams {
   sort?: string;
   order?: 'asc' | 'desc';
 }
+
+export interface CreateDonationDto {
+  donorName: string;
+  email: string;
+  amount: number;
+  currency?: string;
+  paymentMethod: PaymentMethod;
+}
