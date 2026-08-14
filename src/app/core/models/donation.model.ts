@@ -1,4 +1,5 @@
 export type PaymentMethod = 'card' | 'paypal' | 'sepa';
+
 export interface Donation {
   id: string;
   donorName: string;
@@ -17,13 +18,6 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
-}
-
-export interface CreateDonationPayload {
-  donorName: string;
-  email: string;
-  amount: number;
-  paymentMethod: PaymentMethod;
 }
 
 export interface DonationQueryParams {

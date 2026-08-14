@@ -4,45 +4,46 @@
       {{ title }}
     </div>
   }
-  <div class="table-container">
+  <div class="table-wrapper">
     @if (loading) {
       <div class="loading-overlay">
         <div class="spinner"></div>
         <span>Loading data...</span>
       </div>
     }
-
-    <table class="custom-table">
-      <thead>
-        <tr>
-          @for (col of columns; track col.key) {
-            <th [class.sortable]="col.sortable" (click)="onSort(col)">
-              {{ col.header }}
-              @if (col.sortable && sort === col.key) {
-                <span class="sort-indicator">{{
-                  order === "asc" ? "▲" : "▼"
-                }}</span>
-              }
-            </th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of data; track $index) {
+    <div class="table-container">
+      <table class="custom-table">
+        <thead>
           <tr>
             @for (col of columns; track col.key) {
-              <td>{{ getCellValue(row, col) }}</td>
+              <th [class.sortable]="col.sortable" (click)="onSort(col)">
+                {{ col.header }}
+                @if (col.sortable && sort === col.key) {
+                  <span class="sort-indicator">{{
+                    order === "asc" ? "▲" : "▼"
+                  }}</span>
+                }
+              </th>
             }
           </tr>
-        } @empty {
-          <tr>
-            <td [attr.colspan]="columns.length" class="empty-cell">
-              No data available.
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of data; track $index) {
+            <tr>
+              @for (col of columns; track col.key) {
+                <td>{{ getCellValue(row, col) }}</td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="columns.length" class="empty-cell">
+                No data available.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="pagination-controls">
     <button

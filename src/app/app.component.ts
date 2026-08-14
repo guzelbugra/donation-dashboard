@@ -21,6 +21,18 @@ export class AppComponent implements OnInit {
   readonly store = inject(DonationStore);
 
   donationColumns: ColumnDef<Donation>[] = [
+    {
+      key: 'createdAt',
+      header: 'Date',
+      sortable: true,
+      cell: (row) => new Date(row.createdAt).toLocaleDateString(),
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      sortable: true,
+      cell: (row) => `${row.amount} ${row.currency}`,
+    },
     { key: 'donorName', header: 'Donor Name', sortable: true },
     {
       key: 'email',
@@ -31,18 +43,6 @@ export class AppComponent implements OnInit {
       key: 'paymentMethod',
       header: 'Payment Method',
       sortable: true,
-    },
-    {
-      key: 'amount',
-      header: 'Amount',
-      sortable: true,
-      cell: (row) => `${row.amount} ${row.currency}`,
-    },
-    {
-      key: 'createdAt',
-      header: 'Date',
-      sortable: true,
-      cell: (row) => new Date(row.createdAt).toLocaleDateString(),
     },
   ];
 

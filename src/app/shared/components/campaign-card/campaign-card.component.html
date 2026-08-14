@@ -13,20 +13,32 @@
   }
 
   <div class="campaign-info">
-    <span
-      >Raised:
+    <span>
+      Raised:
       <strong>{{
         campaign?.totalRaised | currency: "EUR" : "symbol" : "1.0-0"
-      }}</strong></span
-    >
-    <span
-      >Goal: {{ campaign?.goal | currency: "EUR" : "symbol" : "1.0-0" }}</span
-    >
-    <span>({{ percentageValue | percent: "1.0-0" }})</span>
+      }}</strong>
+    </span>
+    <div class="goal-info">
+      <span
+        >Goal: {{ campaign?.goal | currency: "EUR" : "symbol" : "1.0-0" }}</span
+      >
+      <span>( {{ percentageValue | percent: "1.0-0" }})</span>
+    </div>
   </div>
 
   <div class="progress-bar">
     <div class="progress-fill" [style.width.%]="progressPercentage"></div>
   </div>
+
+  <div class="stats-row">
+    <span
+      >Average Donation:
+      <strong>{{
+        averageDonation | currency: "EUR" : "symbol" : "1.0-0"
+      }}</strong></span
+    >
+  </div>
+
   <p class="inspiring-message">{{ inspiringMessage }}</p>
 </div>

@@ -12,17 +12,12 @@ import { Campaign } from '../../../core/models/campaign.model';
 })
 export class CampaignCardComponent {
   @Input() campaign: Campaign | null = null;
+  @Input() progressPercentage: number = 0;
+  @Input() averageDonation: number = 0;
   @Input() loading: boolean = false;
 
-  get progressPercentage(): number {
-    if (!this.campaign?.goal) return 0;
-    const progress = (this.campaign.totalRaised / this.campaign.goal) * 100;
-    return Math.min(progress, 100);
-  }
-
   get percentageValue(): number {
-    if (!this.campaign?.goal) return 0;
-    return Math.min(this.campaign.totalRaised / this.campaign.goal, 1);
+    return this.progressPercentage / 100;
   }
 
   get inspiringMessage(): string {

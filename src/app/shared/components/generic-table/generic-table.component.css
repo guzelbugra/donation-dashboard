@@ -1,4 +1,5 @@
 .generic-table-wrapper {
+  position: relative;
   box-shadow: 1px 1px 3px 1px #afafaf;
   padding: 1rem;
 }
@@ -10,15 +11,21 @@
   text-align: center;
   padding-bottom: 36px;
 }
+
+.table-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 .table-container {
   width: 100%;
   min-height: 475px;
   overflow: auto;
-  position: relative;
 }
 
 .custom-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   margin-bottom: 1rem;
 }
@@ -49,10 +56,36 @@
   color: #777;
 }
 
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 10;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .pagination-controls {
   padding-top: 10px;
   display: flex;
   align-items: center;
-  justify-content: right;
+  justify-content: flex-end;
   gap: 1rem;
 }

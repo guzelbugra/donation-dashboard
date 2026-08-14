@@ -1,5 +1,11 @@
-import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import { inject } from '@angular/core';
+import {
+  signalStore,
+  withState,
+  withMethods,
+  withComputed,
+  patchState,
+} from '@ngrx/signals';
+import { computed, inject } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
@@ -36,6 +42,23 @@ const initialState: DonationState = {
 export const DonationStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+
+  withComputed((store) => ({
+    progressPercentage: computed(() => {
+      const campaign = store.campaign();
+      if (!campaign || campaign.goal === 0) return 0;
+      return Math.min(
+        Math.round((campaign.totalRaised / campaign.goal) * 100),
+        100,
+      );
+    }),
+    averageDonation: computed(() => {
+      const campaign = store.campaign();
+      if (!campaign || campaign.donorCount === 0) return 0;
+      return Math.round(campaign.totalRaised / campaign.donorCount);
+    }),
+  })),
+
   withMethods(
     (
       store,
@@ -105,7 +128,24 @@ export const DonationStore = signalStore(
               })
               .pipe(
                 tap({
-                  next: () => {
+                  next: (createdDonation) => {
+                    const currentCampaign = store.campaign();
+                    if (currentCampaign) {
+                      patchState(store, {
+                        campaign: {
+                          ...currentCampaign,
+                          totalRaised:
+                            currentCampaign.totalRaised +
+                            createdDonation.amount,
+                          donorCount: currentCampaign.donorCount + 1,
+                        },
+                      });
+                    }
+                    patchState(store, {
+                      page: 1,
+                      sort: 'createdAt',
+                      order: 'desc',
+                    });
                     fetchDonations();
                     fetchCampaign();
                   },

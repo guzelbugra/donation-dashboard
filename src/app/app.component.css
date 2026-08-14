@@ -1,8 +1,13 @@
 .dashboard-container {
-  padding: 2rem;
+  padding: 1rem;
   font-family: sans-serif;
   font-size: 14px;
 }
+
+.dashboard-container h1 {
+  text-align: center;
+}
+
 .dashboard-action-container {
   width: 100%;
   display: flex;
@@ -17,4 +22,10 @@
 
 .donations-list {
   padding-left: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-action-container {
+    justify-content: center;
+  }
 }

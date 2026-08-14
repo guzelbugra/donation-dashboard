@@ -16,6 +16,8 @@
   <app-campaign-card
     [loading]="store.isCampaignLoading()"
     [campaign]="store.campaign()"
+    [progressPercentage]="store.progressPercentage()"
+    [averageDonation]="store.averageDonation()"
   ></app-campaign-card>
 
   <section class="donations-section">
