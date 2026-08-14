@@ -1,11 +1,21 @@
-import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { delay, of } from 'rxjs';
+import {
+  HttpErrorResponse,
+  HttpInterceptorFn,
+  HttpResponse,
+} from '@angular/common/http';
+import { delay, of, switchMap, throwError, timer } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
 import {
   CreateDonationDto,
   Donation,
   PaginatedResponse,
 } from '../models/donation.model';
+
+export let isCampaignErrorMode = false;
+
+export const setCampaignErrorMode = (status: boolean) => {
+  isCampaignErrorMode = status;
+};
 
 const mockCampaign: Campaign = {
   id: 'camp_001',
@@ -29,6 +39,21 @@ const mockDonations: Donation[] = Array.from({ length: 1000 }, (_, i) => ({
 
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url === '/api/campaign' && req.method === 'GET') {
+    if (isCampaignErrorMode) {
+      return timer(1000).pipe(
+        switchMap(() =>
+          throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 500,
+                statusText: 'Internal Server Error',
+                error: { message: 'Failed to load campaign statistics.' },
+              }),
+          ),
+        ),
+      );
+    }
+
     return of(new HttpResponse({ status: 200, body: mockCampaign })).pipe(
       delay(1000),
     );

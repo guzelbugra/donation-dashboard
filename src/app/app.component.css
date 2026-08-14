@@ -24,6 +24,12 @@
   padding-left: 1.25rem;
 }
 
+.demo-controls-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 5px;
+}
 @media (max-width: 768px) {
   .dashboard-action-container {
     justify-content: center;

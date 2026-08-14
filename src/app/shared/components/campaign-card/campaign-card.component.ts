@@ -1,4 +1,10 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Input,
+  ChangeDetectionStrategy,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { CurrencyPipe, PercentPipe } from '@angular/common';
 import { Campaign } from '../../../core/models/campaign.model';
 
@@ -15,6 +21,8 @@ export class CampaignCardComponent {
   @Input() progressPercentage: number = 0;
   @Input() averageDonation: number = 0;
   @Input() loading: boolean = false;
+  @Input() error: string | null = null;
+  @Output() retry = new EventEmitter<void>();
 
   get percentageValue(): number {
     return this.progressPercentage / 100;

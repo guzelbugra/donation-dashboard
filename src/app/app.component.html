@@ -13,12 +13,26 @@
   >
   </app-add-donation-modal>
 
+  <div class="demo-controls">
+    <label class="demo-controls-label">
+      <input
+        type="checkbox"
+        [checked]="!!store.campaignError()"
+        (change)="store.toggleCampaignError($any($event.target).checked)"
+      />
+      <span>Simulate Campaign API Error (HTTP 500)</span>
+    </label>
+  </div>
   <app-campaign-card
     [loading]="store.isCampaignLoading()"
     [campaign]="store.campaign()"
     [progressPercentage]="store.progressPercentage()"
     [averageDonation]="store.averageDonation()"
-  ></app-campaign-card>
+    [error]="store.campaignError()"
+    (retry)="store.retryFetchCampaign()"
+  >
+    ></app-campaign-card
+  >
 
   <section class="donations-section">
     <app-generic-table

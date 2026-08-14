@@ -7,11 +7,12 @@ import {
 } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap } from 'rxjs';
+import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 import { Campaign } from '../models/campaign.model';
 import { CreateDonationDto, Donation } from '../models/donation.model';
 import { CampaignService } from '../services/campaign.service';
 import { DonationService } from '../services/donation.service';
+import { setCampaignErrorMode } from '../interceptors/mock-api.interceptor';
 
 export interface DonationState {
   campaign: Campaign | null;
@@ -24,6 +25,7 @@ export interface DonationState {
   order: 'asc' | 'desc';
   isCampaignLoading: boolean;
   isDonationsLoading: boolean;
+  campaignError: string | null;
 }
 
 const initialState: DonationState = {
@@ -37,6 +39,7 @@ const initialState: DonationState = {
   order: 'desc',
   isCampaignLoading: false,
   isDonationsLoading: false,
+  campaignError: null,
 };
 
 export const DonationStore = signalStore(
@@ -67,17 +70,27 @@ export const DonationStore = signalStore(
     ) => {
       const fetchCampaign = rxMethod<void>(
         pipe(
-          tap(() => patchState(store, { isCampaignLoading: true })),
+          tap(() =>
+            patchState(store, { isCampaignLoading: true, campaignError: null }),
+          ),
           switchMap(() =>
             campaignService.getCampaign().pipe(
-              tap({
-                next: (campaign) => {
-                  patchState(store, { campaign, isCampaignLoading: false });
-                },
-                error: (err) => {
-                  console.error('Campaign load error:', err);
-                  patchState(store, { isCampaignLoading: false });
-                },
+              tap((campaign) => {
+                patchState(store, {
+                  campaign,
+                  isCampaignLoading: false,
+                  campaignError: null,
+                });
+              }),
+              catchError((err) => {
+                console.error('Campaign load error:', err);
+                patchState(store, {
+                  isCampaignLoading: false,
+                  campaignError:
+                    err.error?.message || 'Failed to load campaign statistics.',
+                });
+
+                return of(null);
               }),
             ),
           ),
@@ -180,6 +193,22 @@ export const DonationStore = signalStore(
         },
         createDonation(donation: CreateDonationDto) {
           createDonation(donation);
+        },
+        toggleCampaignError(enable: boolean) {
+          setCampaignErrorMode(enable);
+          if (!enable) {
+            patchState(store, { campaignError: null });
+          }
+          fetchCampaign();
+        },
+
+        retryFetchCampaign() {
+          setCampaignErrorMode(false);
+          patchState(store, {
+            campaignError: null,
+            campaign: initialState.campaign,
+          });
+          fetchCampaign();
         },
       };
     },
