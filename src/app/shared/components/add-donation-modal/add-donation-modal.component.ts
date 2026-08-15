@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   Output,
+  Input,
   EventEmitter,
   ViewChild,
   ChangeDetectionStrategy,
@@ -27,7 +28,12 @@ import {
 })
 export class AddDonationModalComponent {
   @ViewChild('dialog') dialogRef!: ElementRef<HTMLDialogElement>;
+
+  @Input() isSubmitting = false;
+  @Input() errorMessage: string | null = null;
+
   @Output() submitDonation = new EventEmitter<CreateDonationDto>();
+  @Output() modalClosed = new EventEmitter<void>();
 
   private fb = inject(NonNullableFormBuilder);
 
@@ -50,6 +56,7 @@ export class AddDonationModalComponent {
       amount: 10,
       paymentMethod: 'card' as PaymentMethod,
     });
+    this.modalClosed.emit();
   }
 
   onSubmit() {
@@ -60,6 +67,5 @@ export class AddDonationModalComponent {
 
     const donationData: CreateDonationDto = this.form.getRawValue();
     this.submitDonation.emit(donationData);
-    this.close();
   }
 }

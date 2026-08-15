@@ -12,7 +12,7 @@
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .campaign-section,
@@ -24,12 +24,26 @@
   padding-left: 1.25rem;
 }
 
+.demo-controls {
+  width: fit-content;
+  padding: 12px;
+  border: 1px solid #af4747;
+  background: #ff000030;
+  margin-top: 12px;
+}
+
 .demo-controls-label {
   width: fit-content;
   display: flex;
   align-items: center;
   gap: 4px;
   margin-bottom: 5px;
+}
+
+.demo-controls-checkboxes {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 @media (max-width: 768px) {
   .dashboard-action-container {

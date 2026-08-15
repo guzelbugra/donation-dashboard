@@ -33,6 +33,7 @@ const mockDonations: Donation[] = Array.from({ length: 1000 }, (_, i) => ({
 
 export let isCampaignErrorMode = false;
 export let isDonationsErrorMode = false;
+export let isCreateDonationErrorMode = false;
 
 export const setCampaignErrorMode = (status: boolean) => {
   isCampaignErrorMode = status;
@@ -40,6 +41,10 @@ export const setCampaignErrorMode = (status: boolean) => {
 
 export const setDonationsErrorMode = (status: boolean) => {
   isDonationsErrorMode = status;
+};
+
+export const setCreateDonationErrorMode = (status: boolean) => {
+  isCreateDonationErrorMode = status;
 };
 
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
@@ -114,6 +119,23 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   if (req.url === '/api/donations' && req.method === 'POST') {
+    if (isCreateDonationErrorMode) {
+      return timer(1000).pipe(
+        switchMap(() =>
+          throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 500,
+                statusText: 'Internal Server Error',
+                error: {
+                  message: 'Failed to create new donation. Please try again.',
+                },
+              }),
+          ),
+        ),
+      );
+    }
+
     const body = req.body as CreateDonationDto;
 
     const newDonation: Donation = {
@@ -131,7 +153,7 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
     mockCampaign.donorCount += 1;
 
     return of(new HttpResponse({ status: 201, body: newDonation })).pipe(
-      delay(500),
+      delay(1000),
     );
   }
 

@@ -15,6 +15,7 @@ import { DonationService } from '../services/donation.service';
 import {
   setCampaignErrorMode,
   setDonationsErrorMode,
+  setCreateDonationErrorMode,
 } from '../interceptors/mock-api.interceptor';
 
 export interface DonationState {
@@ -28,8 +29,10 @@ export interface DonationState {
   order: 'asc' | 'desc';
   isCampaignLoading: boolean;
   isDonationsLoading: boolean;
+  isSubmittingDonation: boolean;
   campaignError: string | null;
   donationsError: string | null;
+  createDonationError: string | null;
 }
 
 const initialState: DonationState = {
@@ -43,8 +46,10 @@ const initialState: DonationState = {
   order: 'desc',
   isCampaignLoading: false,
   isDonationsLoading: false,
+  isSubmittingDonation: false,
   campaignError: null,
   donationsError: null,
+  createDonationError: null,
 };
 
 export const DonationStore = signalStore(
@@ -151,7 +156,12 @@ export const DonationStore = signalStore(
 
       const createDonation = rxMethod<CreateDonationDto>(
         pipe(
-          tap(() => patchState(store, { isDonationsLoading: true })),
+          tap(() =>
+            patchState(store, {
+              isSubmittingDonation: true,
+              createDonationError: null,
+            }),
+          ),
           switchMap((newDonation) =>
             donationService
               .createDonation({
@@ -174,6 +184,8 @@ export const DonationStore = signalStore(
                       });
                     }
                     patchState(store, {
+                      isSubmittingDonation: false,
+                      createDonationError: null,
                       page: 1,
                       sort: 'createdAt',
                       order: 'desc',
@@ -181,10 +193,16 @@ export const DonationStore = signalStore(
                     fetchDonations();
                     fetchCampaign();
                   },
-                  error: (err) => {
-                    console.error('Create donation error:', err);
-                    patchState(store, { isDonationsLoading: false });
-                  },
+                }),
+                catchError((err) => {
+                  console.error('Create donation error:', err);
+                  patchState(store, {
+                    isSubmittingDonation: false,
+                    createDonationError:
+                      err.error?.message ||
+                      'Failed to create new donation. Please try again later',
+                  });
+                  return of(null);
                 }),
               ),
           ),
@@ -237,6 +255,12 @@ export const DonationStore = signalStore(
           setDonationsErrorMode(false);
           patchState(store, { donationsError: null });
           fetchDonations();
+        },
+        setCreateDonationError(enable: boolean) {
+          setCreateDonationErrorMode(enable);
+        },
+        resetCreateDonationError() {
+          patchState(store, { createDonationError: null });
         },
       };
     },

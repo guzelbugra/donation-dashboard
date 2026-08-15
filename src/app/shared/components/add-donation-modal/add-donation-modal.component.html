@@ -1,8 +1,19 @@
 <dialog #dialog class="modal">
   <div class="modal-header">
     <h3>New Donation</h3>
-    <button type="button" class="close-btn" (click)="close()">✕</button>
+    <button
+      type="button"
+      class="close-btn"
+      (click)="close()"
+      [disabled]="isSubmitting"
+    >
+      ✕
+    </button>
   </div>
+
+  @if (errorMessage) {
+    <div class="modal-error-banner">⚠️ {{ errorMessage }}</div>
+  }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="field">
@@ -12,6 +23,7 @@
         type="text"
         formControlName="donorName"
         placeholder="John Doe"
+        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('donorName')?.touched && form.get('donorName')?.invalid
         "
@@ -28,6 +40,7 @@
         type="email"
         formControlName="email"
         placeholder="john@example.com"
+        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('email')?.touched && form.get('email')?.invalid
         "
@@ -44,6 +57,7 @@
         type="number"
         formControlName="amount"
         placeholder="50"
+        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('amount')?.touched && form.get('amount')?.invalid
         "
@@ -55,7 +69,11 @@
 
     <div class="field">
       <label for="paymentMethod">Payment Method</label>
-      <select id="paymentMethod" formControlName="paymentMethod">
+      <select
+        id="paymentMethod"
+        formControlName="paymentMethod"
+        [disabled]="isSubmitting"
+      >
         <option value="card">Credit Card</option>
         <option value="paypal">PayPal</option>
         <option value="sepa">SEPA Direct Debit</option>
@@ -63,8 +81,25 @@
     </div>
 
     <div class="actions">
-      <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
-      <button type="submit" class="btn-submit">Submit</button>
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="close()"
+        [disabled]="isSubmitting"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="form.invalid || isSubmitting"
+      >
+        @if (isSubmitting) {
+          <span>Processing...</span>
+        } @else {
+          <span>Submit</span>
+        }
+      </button>
     </div>
   </form>
 </dialog>

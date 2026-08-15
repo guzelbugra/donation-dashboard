@@ -9,29 +9,12 @@
 
   <app-add-donation-modal
     #donationModal
+    [isSubmitting]="store.isSubmittingDonation()"
+    [errorMessage]="store.createDonationError()"
     (submitDonation)="onAddDonation($event)"
+    (modalClosed)="store.resetCreateDonationError()"
   >
   </app-add-donation-modal>
-
-  <div class="demo-controls">
-    <label class="demo-controls-label">
-      <input
-        type="checkbox"
-        [checked]="!!store.campaignError()"
-        (change)="store.toggleCampaignError($any($event.target).checked)"
-      />
-      <span>Simulate Campaign API Error (HTTP 500)</span>
-    </label>
-  </div>
-
-  <label class="demo-controls-label">
-    <input
-      type="checkbox"
-      [checked]="!!store.donationsError()"
-      (change)="store.toggleDonationsError($any($event.target).checked)"
-    />
-    <span>Simulate Donation API Error (HTTP 500)</span>
-  </label>
 
   <app-campaign-card
     [loading]="store.isCampaignLoading()"
@@ -41,26 +24,54 @@
     [error]="store.campaignError()"
     (retry)="store.retryFetchCampaign()"
   >
-    ></app-campaign-card
-  >
+  </app-campaign-card>
 
-  <section class="donations-section">
-    <app-generic-table
-      title="Donations"
-      [loading]="store.isDonationsLoading()"
-      [data]="store.donations()"
-      [columns]="donationColumns"
-      [page]="store.page()"
-      [totalPages]="store.totalPages()"
-      [total]="store.total()"
-      [sort]="store.sort()"
-      [order]="store.order()"
-      [limit]="store.limit()"
-      (pageChange)="store.setPage($event)"
-      (sortChange)="store.setSorting($event)"
-      [error]="store.donationsError()"
-      (retry)="store.retryFetchDonations()"
-    >
-    </app-generic-table>
-  </section>
+  <app-generic-table
+    title="Donations"
+    [loading]="store.isDonationsLoading()"
+    [data]="store.donations()"
+    [columns]="donationColumns"
+    [page]="store.page()"
+    [totalPages]="store.totalPages()"
+    [total]="store.total()"
+    [sort]="store.sort()"
+    [order]="store.order()"
+    [limit]="store.limit()"
+    (pageChange)="store.setPage($event)"
+    (sortChange)="store.setSorting($event)"
+    [error]="store.donationsError()"
+    (retry)="store.retryFetchDonations()"
+  >
+  </app-generic-table>
+
+  <div class="demo-controls">
+    <h3>Developer area for testing errors</h3>
+    <div class="demo-controls-checkboxes">
+      <label class="demo-controls-label">
+        <input
+          type="checkbox"
+          [checked]="!!store.campaignError()"
+          (change)="store.toggleCampaignError($any($event.target).checked)"
+        />
+        <span>Simulate Campaign API Error</span>
+      </label>
+
+      <label class="demo-controls-label">
+        <input
+          type="checkbox"
+          [checked]="!!store.donationsError()"
+          (change)="store.toggleDonationsError($any($event.target).checked)"
+        />
+        <span>Simulate Donation API Error</span>
+      </label>
+
+      <label class="demo-controls-label">
+        <input
+          type="checkbox"
+          (change)="store.setCreateDonationError($any($event.target).checked)"
+        />
+        <span>Simulate Create Donation API Error</span>
+      </label>
+    </div>
+  </div>
 </div>

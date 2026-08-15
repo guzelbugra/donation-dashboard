@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, effect, inject } from '@angular/core';
 import { DonationStore } from './core/store/donation.store';
 import { GenericTableComponent } from './shared/components/generic-table/generic-table.component';
 import { CampaignCardComponent } from './shared/components/campaign-card/campaign-card.component';
@@ -18,6 +18,8 @@ import { CreateDonationDto, Donation } from './core/models/donation.model';
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit {
+  @ViewChild('donationModal') donationModal!: AddDonationModalComponent;
+
   readonly store = inject(DonationStore);
 
   donationColumns: ColumnDef<Donation>[] = [
@@ -45,6 +47,26 @@ export class AppComponent implements OnInit {
       sortable: true,
     },
   ];
+
+  constructor() {
+    let wasSubmitting = false;
+
+    effect(() => {
+      const isSubmitting = this.store.isSubmittingDonation();
+      const hasError = !!this.store.createDonationError();
+
+      if (isSubmitting) {
+        wasSubmitting = true;
+      }
+
+      if (wasSubmitting && !isSubmitting) {
+        if (!hasError && this.donationModal) {
+          this.donationModal.close();
+        }
+        wasSubmitting = false;
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.store.loadCampaign();
