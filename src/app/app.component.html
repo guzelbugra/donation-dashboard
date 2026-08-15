@@ -23,6 +23,16 @@
       <span>Simulate Campaign API Error (HTTP 500)</span>
     </label>
   </div>
+
+  <label class="demo-controls-label">
+    <input
+      type="checkbox"
+      [checked]="!!store.donationsError()"
+      (change)="store.toggleDonationsError($any($event.target).checked)"
+    />
+    <span>Simulate Donation API Error (HTTP 500)</span>
+  </label>
+
   <app-campaign-card
     [loading]="store.isCampaignLoading()"
     [campaign]="store.campaign()"
@@ -48,6 +58,8 @@
       [limit]="store.limit()"
       (pageChange)="store.setPage($event)"
       (sortChange)="store.setSorting($event)"
+      [error]="store.donationsError()"
+      (retry)="store.retryFetchDonations()"
     >
     </app-generic-table>
   </section>

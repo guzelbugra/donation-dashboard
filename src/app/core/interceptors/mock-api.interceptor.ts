@@ -11,12 +11,6 @@ import {
   PaginatedResponse,
 } from '../models/donation.model';
 
-export let isCampaignErrorMode = false;
-
-export const setCampaignErrorMode = (status: boolean) => {
-  isCampaignErrorMode = status;
-};
-
 const mockCampaign: Campaign = {
   id: 'camp_001',
   name: 'Save the Rainforest 2026',
@@ -36,6 +30,17 @@ const mockDonations: Donation[] = Array.from({ length: 1000 }, (_, i) => ({
   paymentMethod: i % 2 === 0 ? 'card' : 'paypal',
   createdAt: new Date(2026, 0, 15 - i).toISOString(),
 }));
+
+export let isCampaignErrorMode = false;
+export let isDonationsErrorMode = false;
+
+export const setCampaignErrorMode = (status: boolean) => {
+  isCampaignErrorMode = status;
+};
+
+export const setDonationsErrorMode = (status: boolean) => {
+  isDonationsErrorMode = status;
+};
 
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url === '/api/campaign' && req.method === 'GET') {
@@ -60,6 +65,21 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   if (req.url.startsWith('/api/donations') && req.method === 'GET') {
+    if (isDonationsErrorMode) {
+      return timer(1000).pipe(
+        switchMap(() =>
+          throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 500,
+                statusText: 'Internal Server Error',
+                error: { message: 'Failed to load donations list.' },
+              }),
+          ),
+        ),
+      );
+    }
+
     const page = Number(req.params.get('page')) || 1;
     const limit = Number(req.params.get('limit')) || 10;
     const sort = req.params.get('sort') || 'createdAt';
@@ -88,7 +108,6 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
         totalPages,
       },
     };
-
     return of(new HttpResponse({ status: 200, body: response })).pipe(
       delay(500),
     );

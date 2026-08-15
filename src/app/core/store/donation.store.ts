@@ -12,7 +12,10 @@ import { Campaign } from '../models/campaign.model';
 import { CreateDonationDto, Donation } from '../models/donation.model';
 import { CampaignService } from '../services/campaign.service';
 import { DonationService } from '../services/donation.service';
-import { setCampaignErrorMode } from '../interceptors/mock-api.interceptor';
+import {
+  setCampaignErrorMode,
+  setDonationsErrorMode,
+} from '../interceptors/mock-api.interceptor';
 
 export interface DonationState {
   campaign: Campaign | null;
@@ -26,6 +29,7 @@ export interface DonationState {
   isCampaignLoading: boolean;
   isDonationsLoading: boolean;
   campaignError: string | null;
+  donationsError: string | null;
 }
 
 const initialState: DonationState = {
@@ -40,6 +44,7 @@ const initialState: DonationState = {
   isCampaignLoading: false,
   isDonationsLoading: false,
   campaignError: null,
+  donationsError: null,
 };
 
 export const DonationStore = signalStore(
@@ -99,7 +104,12 @@ export const DonationStore = signalStore(
 
       const fetchDonations = rxMethod<void>(
         pipe(
-          tap(() => patchState(store, { isDonationsLoading: true })),
+          tap(() =>
+            patchState(store, {
+              isDonationsLoading: true,
+              donationsError: null,
+            }),
+          ),
           switchMap(() =>
             donationService
               .getDonations({
@@ -118,12 +128,21 @@ export const DonationStore = signalStore(
                       total: res.pagination.total,
                       totalPages: res.pagination.totalPages,
                       isDonationsLoading: false,
+                      donationsError: null,
                     });
                   },
-                  error: (err) => {
-                    console.error('Donations load error:', err);
-                    patchState(store, { isDonationsLoading: false });
-                  },
+                }),
+                catchError((err) => {
+                  console.error('Donations load error:', err);
+                  patchState(store, {
+                    isDonationsLoading: false,
+                    donationsError:
+                      err.error?.message || 'Failed to load donations list.',
+                    page: 1,
+                    sort: 'createdAt',
+                    order: 'desc',
+                  });
+                  return of(null);
                 }),
               ),
           ),
@@ -201,7 +220,6 @@ export const DonationStore = signalStore(
           }
           fetchCampaign();
         },
-
         retryFetchCampaign() {
           setCampaignErrorMode(false);
           patchState(store, {
@@ -209,6 +227,16 @@ export const DonationStore = signalStore(
             campaign: initialState.campaign,
           });
           fetchCampaign();
+        },
+        toggleDonationsError(enable: boolean) {
+          setDonationsErrorMode(enable);
+          patchState(store, { donationsError: null });
+          fetchDonations();
+        },
+        retryFetchDonations() {
+          setDonationsErrorMode(false);
+          patchState(store, { donationsError: null });
+          fetchDonations();
         },
       };
     },

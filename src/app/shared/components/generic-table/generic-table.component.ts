@@ -25,6 +25,8 @@ export class GenericTableComponent<T> {
   @Input({ required: true }) order: 'asc' | 'desc' = 'desc';
   @Input({ required: true }) limit = 10;
   @Input({ required: false }) loading = false;
+  @Input() error: string | null = null;
+  @Output() retry = new EventEmitter<void>();
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() sortChange = new EventEmitter<string>();

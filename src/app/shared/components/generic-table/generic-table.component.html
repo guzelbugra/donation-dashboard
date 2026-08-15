@@ -11,57 +11,70 @@
         <span>Loading data...</span>
       </div>
     }
-    <div class="table-container">
-      <table class="custom-table">
-        <thead>
-          <tr>
-            @for (col of columns; track col.key) {
-              <th [class.sortable]="col.sortable" (click)="onSort(col)">
-                {{ col.header }}
-                @if (col.sortable && sort === col.key) {
-                  <span class="sort-indicator">{{
-                    order === "asc" ? "▲" : "▼"
-                  }}</span>
-                }
-              </th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of data; track $index) {
+
+    @if (error && !loading) {
+      <div class="campaign-error-state">
+        <div class="error-icon">⚠️</div>
+        <p class="error-text">{{ error }}</p>
+        <button class="primary-button" (click)="retry.emit()">
+          Retry Donations
+        </button>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="custom-table">
+          <thead>
             <tr>
               @for (col of columns; track col.key) {
-                <td>{{ getCellValue(row, col) }}</td>
+                <th [class.sortable]="col.sortable" (click)="onSort(col)">
+                  {{ col.header }}
+                  @if (col.sortable && sort === col.key) {
+                    <span class="sort-indicator">{{
+                      order === "asc" ? "▲" : "▼"
+                    }}</span>
+                  }
+                </th>
               }
             </tr>
-          } @empty {
-            <tr>
-              <td [attr.colspan]="columns.length" class="empty-cell">
-                No data available.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (row of data; track $index) {
+              <tr>
+                @for (col of columns; track col.key) {
+                  <td>{{ getCellValue(row, col) }}</td>
+                }
+              </tr>
+            } @empty {
+              <tr>
+                <td [attr.colspan]="columns.length" class="empty-cell">
+                  No data available.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+  @if (!error) {
+    <div class="pagination-controls">
+      <button
+        class="primary-button"
+        [disabled]="page <= 1 || loading"
+        (click)="pageChange.emit(page - 1)"
+      >
+        Previous
+      </button>
+
+      <span>{{ startItem }}-{{ endItem }} of {{ total }}</span>
+
+      <button
+        class="primary-button"
+        [disabled]="page >= totalPages || loading"
+        (click)="pageChange.emit(page + 1)"
+      >
+        Next
+      </button>
     </div>
-  </div>
-  <div class="pagination-controls">
-    <button
-      class="primary-button"
-      [disabled]="page <= 1 || loading"
-      (click)="pageChange.emit(page - 1)"
-    >
-      Previous
-    </button>
-
-    <span>{{ startItem }}-{{ endItem }} of {{ total }}</span>
-
-    <button
-      class="primary-button"
-      [disabled]="page >= totalPages || loading"
-      (click)="pageChange.emit(page + 1)"
-    >
-      Next
-    </button>
-  </div>
+  }
 </div>
