@@ -23,7 +23,6 @@
         type="text"
         formControlName="donorName"
         placeholder="John Doe"
-        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('donorName')?.touched && form.get('donorName')?.invalid
         "
@@ -40,7 +39,6 @@
         type="email"
         formControlName="email"
         placeholder="john@example.com"
-        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('email')?.touched && form.get('email')?.invalid
         "
@@ -57,7 +55,6 @@
         type="number"
         formControlName="amount"
         placeholder="50"
-        [disabled]="isSubmitting"
         [class.is-invalid]="
           form.get('amount')?.touched && form.get('amount')?.invalid
         "
@@ -69,11 +66,7 @@
 
     <div class="field">
       <label for="paymentMethod">Payment Method</label>
-      <select
-        id="paymentMethod"
-        formControlName="paymentMethod"
-        [disabled]="isSubmitting"
-      >
+      <select id="paymentMethod" formControlName="paymentMethod">
         <option value="card">Credit Card</option>
         <option value="paypal">PayPal</option>
         <option value="sepa">SEPA Direct Debit</option>

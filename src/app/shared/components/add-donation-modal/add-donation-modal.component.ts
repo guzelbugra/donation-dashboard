@@ -7,6 +7,8 @@ import {
   ViewChild,
   ChangeDetectionStrategy,
   inject,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import {
   NonNullableFormBuilder,
@@ -26,7 +28,7 @@ import {
   styleUrl: './add-donation-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddDonationModalComponent {
+export class AddDonationModalComponent implements OnChanges {
   @ViewChild('dialog') dialogRef!: ElementRef<HTMLDialogElement>;
 
   @Input() isSubmitting = false;
@@ -43,6 +45,16 @@ export class AddDonationModalComponent {
     amount: [10, [Validators.required, Validators.min(1)]],
     paymentMethod: ['card' as PaymentMethod, [Validators.required]],
   });
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isSubmitting']) {
+      if (this.isSubmitting) {
+        this.form.disable();
+      } else {
+        this.form.enable();
+      }
+    }
+  }
 
   open() {
     this.dialogRef.nativeElement.showModal();
