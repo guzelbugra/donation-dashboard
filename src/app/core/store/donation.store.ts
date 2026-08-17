@@ -143,9 +143,6 @@ export const DonationStore = signalStore(
                     isDonationsLoading: false,
                     donationsError:
                       err.error?.message || 'Failed to load donations list.',
-                    page: 1,
-                    sort: 'createdAt',
-                    order: 'desc',
                   });
                   return of(null);
                 }),
